@@ -8,8 +8,8 @@
 
 using namespace std;
 
-struct Variable {
-// private:
+class Variable {
+private:
     string type;
     string name;
     int lineno;
@@ -21,9 +21,12 @@ public:
     void setValue(Value* val);
     void setConstant();
     bool isConstant() { return constant; }
+    int getLine() {return lineno;}
     Value* getValue();
+    string getName(){return name;}
     string getType() { return type; }
 };
+
 
 class SymbolTable
 {

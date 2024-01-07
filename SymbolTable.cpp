@@ -57,7 +57,7 @@ Variable* SymbolTable::addVar(const char* type, const char* name, int lineno)
     } 
     else
     {
-        printf("ERR: Duplicate variable '%s', first at line %d, second at line %d.\n", name, v->lineno, lineno);
+        cout <<"line : " <<lineno <<" ERR: Duplicate variable " << name << " already declared at line " << v->getLine() <<endl;
     }
     return v;
 }
@@ -86,8 +86,8 @@ void SymbolTable::printVars()
         {
             stringValue = var->getValue()->stringValue();
         }
-        char is_const = var->constant?'*':' ' ;
-        cout<< var->lineno <<"\t" << var->type <<is_const << "\t" << var->name << "\t" << stringValue << endl;
+        char is_const = var->isConstant()?'*':' ' ;
+        cout<< var->getLine() <<"\t" << var->getType() <<is_const << "\t" << var->getName() << "\t" << stringValue << endl;
         ++it;
     }
 }
