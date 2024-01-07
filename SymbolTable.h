@@ -14,11 +14,15 @@ struct Variable {
     string name;
     int lineno;
     Value* value;
+    bool constant;
 
 public:
     Variable(const char* type, const char* name, int lineno);
     void setValue(Value* val);
+    void setConstant();
+    bool isConstant() { return constant; }
     Value* getValue();
+    string getType() { return type; }
 };
 
 class SymbolTable
@@ -32,7 +36,7 @@ public:
     static SymbolTable* getInstance();
 
     bool existsVar(const char* s);
-    Variable* get(const char* name);
+    Variable* get(string name);
     Variable* addVar(const char* type, const char* name, int lineno);
     void printVars();
     ~SymbolTable();

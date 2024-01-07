@@ -13,10 +13,12 @@ DIGIT   [0-9]
 %option noyywrap
 
 %%
+
 "int"|"bool"|"float"|"char"|"string"|"void" { yylval.string = strdup(yytext); return TYPE; }
 "true"      { yylval.boolean = true; return TRUE;}
 "false"     { yylval.boolean = false; return FALSE;}
 "var"       {return VARIABLE_DEF;}
+"const"     {return CONST; }
 "object"    {return OBJECT_DEF;}
 "function"  {return FUNCTION_DEF;}
 "for"       {return FOR;}

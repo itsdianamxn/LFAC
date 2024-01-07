@@ -29,7 +29,7 @@ using namespace std;
 }
 
 %start progr
-%token VARIABLE_DEF OBJECT_DEF FUNCTION_DEF FOR IF ELSE THEN WHILE PRINT RETURN
+%token VARIABLE_DEF CONST OBJECT_DEF FUNCTION_DEF FOR IF ELSE THEN WHILE PRINT RETURN MAIN_FUNCT
 %token ASSIGN PLUS MINUS MULT DIV EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL
 %token COLON SEMICOLON COMMA DOT DOT2
 %token OPENPAREN CLOSEPAREN OPENBRACKET CLOSEBRACKET OPENSQUARE CLOSESQUARE
@@ -85,6 +85,10 @@ global_variable : VARIABLE_DEF ID COLON TYPE SEMICOLON
                            v->setValue($6->getValue()); }
                 | VARIABLE_DEF ID COLON TYPE OPENSQUARE INT_LITERAL CLOSESQUARE SEMICOLON
                          { cout << "Define array variable " << $2 << " of type " << $4 << endl;}
+               | CONST ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
+                         { Variable* v = SymbolTable::getInstance()->addVar($4, $2, yylineno);
+                           v->setValue($6->getValue());
+                           v->setConstant(); }
                 ;
 
 global_variables : global_variables global_variable
@@ -160,6 +164,7 @@ function_call : ID OPENPAREN argument_list CLOSEPAREN
 
 print : PRINT OPENPAREN argument_list CLOSEPAREN { cout << yylineno << ": PRINT() " << endl; }
       ;
+
 
 return_statement: RETURN expr
                 | RETURN

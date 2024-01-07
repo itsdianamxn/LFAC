@@ -20,6 +20,11 @@ Value* Variable::getValue()
     return value;
 }
 
+void Variable::setConstant()
+{
+    this->constant = true;
+}
+
 /*static*/ SymbolTable* SymbolTable::instance = nullptr;
 
 /*static*/ SymbolTable* SymbolTable::getInstance()
@@ -56,8 +61,7 @@ Variable* SymbolTable::addVar(const char* type, const char* name, int lineno)
     }
     return v;
 }
-
-Variable* SymbolTable::get(const char* name)
+Variable* SymbolTable::get(string name)
 {
     return vars[name];
 }
@@ -82,7 +86,8 @@ void SymbolTable::printVars()
         {
             stringValue = var->getValue()->stringValue();
         }
-        cout<< var->lineno <<"\t" << var->type << "\t" << var->name << "\t" << stringValue << endl;
+        char is_const = var->constant?'*':' ' ;
+        cout<< var->lineno <<"\t" << var->type <<is_const << "\t" << var->name << "\t" << stringValue << endl;
         ++it;
     }
 }
