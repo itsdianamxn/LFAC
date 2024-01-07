@@ -1,0 +1,65 @@
+object Ozn {
+    var name : string;
+    var size : float;
+
+    function fly(x: float, y:float) : void
+    {
+        print("Ozn ", name, " reached coordiantes ", x, ",", y);
+    }
+}
+
+var a : int;
+var b2: bool;
+var pi : float(-3.14);
+var c: char('&');
+var my_str : string ("aeiou");
+var a : bool(true);
+
+var ufo : Ozn("UFO", pi);
+var tablou : int[6];
+
+function sum(e1: int, e2:int) : int
+{
+    var ret : int;
+    ret = e1 + e2;
+    return ret;
+}
+
+function main() : void
+{
+    var a2 : int(7);
+    var i: int(0);
+    
+    a = -10;
+    a = ufo1.name2;
+    
+    print(1, "true");
+    print(a, a2);
+    a = ufo.name;
+    a = 1;
+    sum(2, 2);
+    /*ufo.fly(10000.6 + 7.6, pi);*/
+
+    if (a2 >= a)
+        then 
+            print(a2, " minus ", a, " egal", sum(a2, 0 - a));
+        else
+            print(a2, " plus ", a, " egal ", sum(a2, a + 0));
+    b = start;
+    ;
+    b = ubuntu;
+    {}
+    b = coca-cola;
+    
+    print("Am vazut un ",
+            ufo.name, " de ", 
+            ufo.size, "metri"); 
+
+    b = true;
+    while (b)
+    {
+        i = i +1;
+        b = (i == 9);
+    }
+    print(i);
+}
