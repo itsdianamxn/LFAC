@@ -35,7 +35,7 @@ using namespace std;
 }
 
 %start progr
-%token VARIABLE_DEF CONST OBJECT_DEF FUNCTION_DEF FOR IF ELSE THEN WHILE PRINT RETURN
+%token VARIABLE_DEF CONST OBJECT_DEF FUNCTION_DEF FOR IF ELSE THEN WHILE PRINT RETURN TYPE_OF EVAL
 %token ASSIGN PLUS MINUS MULT DIV EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL
 %token COLON SEMICOLON COMMA DOT DOT2 CALL
 %token OPENPAREN CLOSEPAREN OPENBRACKET CLOSEBRACKET OPENSQUARE CLOSESQUARE
@@ -54,7 +54,7 @@ using namespace std;
 %type <astList>   argument_list
 %type <stmtList>  code_block statements
 %type <stmt>      statement print assignment if_statement for_statement while_statement 
-%type <stmt>      return_statement function_stmt
+%type <stmt>      return_statement function_stmt eval type_of
 %type <param>     parameter
 %type <paramList> parameters
 
@@ -92,13 +92,16 @@ literal   : FLOAT_LITERAL  { $$ = new AST(yylineno, new FloatValue($1)); }
 global_variable : VARIABLE_DEF ID COLON TYPE SEMICOLON
                          { SymbolTable::getInstance()->addVariable($4, $2, yylineno);  }
                 | VARIABLE_DEF ID COLON ID OPENPAREN argument_list CLOSEPAREN SEMICOLON
-                         { cout << "Define userdef variable " << $2 << " of type " << $4 << endl; }
+                         {
+                              cout << "Define userdef variable " << $2 << " of type " << $4 << endl; 
+                              SymbolTable::getInstance()->addVariable($4, $2, yylineno);
+                         }
                 | VARIABLE_DEF ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
                          { Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
                            v->setValue($6->getValue()); }
                 | VARIABLE_DEF ID COLON TYPE OPENSQUARE INT_LITERAL CLOSESQUARE SEMICOLON
                          { cout << "Define array variable " << $2 << " of type " << $4 << endl;}
-               | CONST ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
+                | CONST ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
                          { Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
                            v->setValue($6->getValue());
                            v->setConstant(); }
@@ -143,9 +146,9 @@ extended_expr : expr
               | expr EQUAL expr          { $$ = new AST(yylineno, $1, $3, '='); }
               | expr LESS expr           { $$ = new AST(yylineno, $1, $3, '<'); }
               | expr GREATER expr        { $$ = new AST(yylineno, $1, $3, '>'); }
-              | expr LESSEQUAL expr      { $$ = new AST(yylineno, $1, $3, 'l'); }
-              | expr GREATEREQUAL expr   { $$ = new AST(yylineno, $1, $3, 'g'); }
-              | expr NOTEQUAL expr       { $$ = new AST(yylineno, $1, $3, '!'); }
+              | expr LESSEQUAL expr      { $$ = new AST(yylineno, $1, $3, AST_LEQ); }
+              | expr GREATEREQUAL expr   { $$ = new AST(yylineno, $1, $3, AST_GEQ); }
+              | expr NOTEQUAL expr       { $$ = new AST(yylineno, $1, $3, AST_NOT_EQ); }
               ;
 
 assignment : ID ASSIGN extended_expr
@@ -156,17 +159,23 @@ assignment : ID ASSIGN extended_expr
            ;
 
 if_statement : IF OPENPAREN extended_expr CLOSEPAREN THEN statement
-                    { cout << yylineno << ": IF <expr> THEN <stmt>"  << endl; }
+                    {
+                         //cout << yylineno << ": IF <expr> THEN <stmt>"  << endl; 
+                         $$ = new IfStatement(yylineno, $3, $6, nullptr);
+                    }
              | IF OPENPAREN extended_expr CLOSEPAREN THEN statement ELSE statement
-                    { cout << yylineno << ": IF <expr> THEN <stmt> ELSE <stmt>"  << endl; }
+                    {    
+                         //cout << yylineno << ": IF <expr> THEN <stmt> ELSE <stmt>"  << endl; 
+                         $$ = new IfStatement(yylineno, $3, $6, $8);
+                    }
              ;
 
 for_statement : FOR OPENPAREN global_variable SEMICOLON extended_expr SEMICOLON extended_expr CLOSEPAREN statement
-               { ; }
+               { $$ = new EmptyStatement(yylineno); }
               ;
 
 while_statement : WHILE OPENPAREN extended_expr CLOSEPAREN statement
-               { ; }
+               { $$ = new EmptyStatement(yylineno); }
                 ;
 
 argument_list : extended_expr                      { $$ = new list<AST*>; $$->push_front($1); }
@@ -178,6 +187,7 @@ function_stmt : CALL ID OPENPAREN argument_list CLOSEPAREN
                {
                     // printf("%d: Invoking function {%s(AST, AST ...)} as statement.\n", yylineno, $2);
                     //$$ = new AST(yylineno, $1, $3);
+                    { $$ = new EmptyStatement(yylineno); }
                }
               ;
 function_call : ID OPENPAREN argument_list CLOSEPAREN
@@ -188,15 +198,17 @@ function_call : ID OPENPAREN argument_list CLOSEPAREN
               ;
 
 print : PRINT OPENPAREN argument_list CLOSEPAREN
-           { 
-               // cout << yylineno << ": PRINT() " << endl;
-               $$ = new PrintStatement(yylineno, $3);
-           }
+          { $$ = new PrintStatement(yylineno, $3); }
       ;
 
+eval : EVAL OPENPAREN extended_expr CLOSEPAREN { $$ = new Eval(yylineno, $3); }
+     ;    
+type_of : TYPE_OF OPENPAREN extended_expr CLOSEPAREN
+     { $$ = new TypeOf(yylineno, $3); }
 
-return_statement: RETURN expr { ; }
-                | RETURN      { ; }
+
+return_statement: RETURN expr { $$ = new EmptyStatement(yylineno); }
+                | RETURN      { $$ = new EmptyStatement(yylineno); }
                 ;
 
 statement : assignment SEMICOLON
@@ -206,8 +218,10 @@ statement : assignment SEMICOLON
           | print SEMICOLON
           | return_statement SEMICOLON
           | function_stmt SEMICOLON
-          | OPENBRACKET statements CLOSEBRACKET { ; }
-          | SEMICOLON                           { ; }
+          | eval SEMICOLON
+          | type_of SEMICOLON
+          | OPENBRACKET statements CLOSEBRACKET { $$ = new EmptyStatement(yylineno); }
+          | SEMICOLON                           { $$ = new EmptyStatement(yylineno); }
           ;
 
 statements : statements statement  { $1->push_back($2); $$ = $1; }
@@ -226,11 +240,13 @@ function_definitions : function_definitions function_definition
                      ;
 %%
 
-void yyerror(const char * s) {
-     printf("error: %s at line:%d\n",s,yylineno);
+void yyerror(const char * s)
+{
+     cout << "error: " <<  s << " at line:" << yylineno << endl;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
      yyin=fopen(argv[1],"r");
      yyparse();
 

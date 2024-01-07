@@ -33,8 +33,9 @@ public:
     void setConstant();
     bool isConstant() { return constant; }
     int getLine() {return lineno;}
+    string getName() {return name;} 
+
     Value* getValue();
-    string getName(){return name;}
     string getType() { return type; }
 };
 
@@ -50,8 +51,9 @@ private:
 public:
     Function(string name, string return_type, list<Parameter*>* params, list <Statement*>* stmts, int lineno):
         name(name), return_type(return_type), params(params), stmts(stmts), lineno(lineno) {}
+    string getType() {return return_type;} 
     int getLine() { return lineno; }
-    void execute(); 
+    Value* execute(); 
 };
 
 class SymbolTable

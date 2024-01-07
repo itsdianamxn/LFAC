@@ -32,7 +32,8 @@ public:
         string rightType = ast->getType();
         if (rightType != v->getType())
         {
-            cout <<"line : " <<lineno << " ERR: mismatched types." <<endl;
+            cout <<"line : " <<lineno << " ERR: mismatched types lvalue: " << v->getType() <<
+                " rvalue: "<<  rightType << "." <<endl;
             exit(-8);
         }
         v->setValue(ast->getValue());

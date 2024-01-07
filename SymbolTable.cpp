@@ -65,13 +65,12 @@ Variable* SymbolTable::getVariable(string name)
 {
     return vars[name];
 }
-
 // Iterate through the map and print the elements
 void SymbolTable::printVars()
 {
     auto it = vars.begin();
 
-    cout << "LineNo\tType\tVarName\tInitial Value"<< endl;
+    cout << "LineNo\tType\tVarName\tValue"<< endl;
     while (it != vars.end())
     {
         Variable* var = it->second;
@@ -106,7 +105,7 @@ Function* SymbolTable::getFunction(string name)
     return funcs[name];
 } 
 
-void Function::execute()
+Value* Function::execute()
 {
     // match arguments with parameters
     // evaluate arguments
@@ -120,7 +119,5 @@ void Function::execute()
         stmt->run();
         ++it;
     }
-    
-
-    // return value
+    return nullptr;
 }

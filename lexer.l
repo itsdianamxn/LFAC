@@ -33,6 +33,8 @@ DIGIT   [0-9]
 "while"     {return WHILE;}
 "print"     {return PRINT;}
 "return"    {return RETURN;}
+"Eval"      {return EVAL;}
+"TypeOf"    {return TYPE_OF;}
 
 \=  { return ASSIGN; }
 \+  { return PLUS; }

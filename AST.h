@@ -7,6 +7,16 @@
 #include <iostream>
 #include "Value.h"
 
+#define AST_LITERAL         'L'
+#define AST_IDENTIFIER 'I'
+#define AST_FUNCTION_CALL   'F'
+#define AST_ARRAY_IDENTIFIER 'A'
+#define AST_METHOD 'M'
+#define AST_FIELD  'f'
+#define AST_GEQ    'g'
+#define AST_LEQ    'l'
+#define AST_NOT_EQ '!'
+
 using namespace std;
 
 class AST
