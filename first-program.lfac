@@ -10,7 +10,7 @@ object Ozn {
 
 var a : int;
 var b2: bool;
-var pi : float(-3.14);
+const pi : float(-3.14);
 var c: char('&');
 var my_str : string ("aeiou");
 var a : bool(true);
@@ -37,8 +37,8 @@ function main() : void
     print(a, a2);
     a = ufo.name;
     a = 1;
-    sum(2, 2);
-    /*ufo.fly(10000.6 + 7.6, pi);*/
+    call sum(2, 2);
+    /* call ufo.fly(10000.6 + 7.6, pi);*/
 
     if (a2 >= a)
         then 

@@ -18,7 +18,7 @@ public:
     ~Assignment() {}
     void run ()
     {
-        Variable* v = SymbolTable::getInstance()->get(id);
+        Variable* v = SymbolTable::getInstance()->getVariable(id);
         if(v == nullptr)
         {
             cout <<"line : " <<lineno << " ERR: variable not declared." <<endl;

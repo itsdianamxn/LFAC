@@ -46,9 +46,9 @@ bool SymbolTable::existsVar(const char* s)
     return vars[s]!=nullptr;
 }
 
-Variable* SymbolTable::addVar(const char* type, const char* name, int lineno)
+Variable* SymbolTable::addVariable(const char* type, const char* name, int lineno)
 {
-    printf("Adding variable %s of type %s at line %d\n", name, type, lineno);
+    // printf("Adding variable %s of type %s at line %d\n", name, type, lineno);
     Variable* v = vars[name];
     if (v == nullptr)
     {
@@ -61,23 +61,17 @@ Variable* SymbolTable::addVar(const char* type, const char* name, int lineno)
     }
     return v;
 }
-Variable* SymbolTable::get(string name)
+Variable* SymbolTable::getVariable(string name)
 {
     return vars[name];
 }
 
+// Iterate through the map and print the elements
 void SymbolTable::printVars()
 {
-    // cout << "IntValue " << (new IntValue(0))->stringValue() << endl;
-    // cout << "BoolValue " << (new BoolValue(false))->stringValue() << endl;
-    // cout << "FloatValue " << (new FloatValue(0))->stringValue() << endl;
-    // cout << "CharValue " << (new CharValue(0))->stringValue() << endl;
-    // cout << "StringValue " << (new StringValue("x"))->stringValue() << endl;
-
-    //map<string, int>::iterator it = vars.begin();
     auto it = vars.begin();
 
-    // Iterate through the map and print the elements
+    cout << "LineNo\tType\tVarName\tInitial Value"<< endl;
     while (it != vars.end())
     {
         Variable* var = it->second;
@@ -92,3 +86,41 @@ void SymbolTable::printVars()
     }
 }
 
+Function* SymbolTable::addFunction(const char* type, const char* name, list<Parameter*>* params, list<Statement*>* stmts, int lineno)
+{
+    Function* f = funcs[name];
+    if (f == nullptr)
+    {
+        funcs[name] = new Function(name, type, params, stmts, lineno);
+    }
+    else
+    {
+        cout << "line : " << lineno << " ERR: Duplicate function " << name << 
+                " already declared at line " << f->getLine() <<endl;
+    }
+    return f;
+}
+
+Function* SymbolTable::getFunction(string name)
+{
+    return funcs[name];
+} 
+
+void Function::execute()
+{
+    // match arguments with parameters
+    // evaluate arguments
+    // add arguments as variables
+    
+    // execute statements
+    auto it = stmts->begin();
+    while (it != stmts->end())
+    {
+        Statement* stmt = *it;
+        stmt->run();
+        ++it;
+    }
+    
+
+    // return value
+}

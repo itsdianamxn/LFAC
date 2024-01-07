@@ -3,6 +3,10 @@
 #include <string.h>
 #include "Value.h"
 #include "AST.h"
+
+#include "Statement.h"
+#include "Assignment.h"
+#include "PrintStatement.h"
 /*#include "SymbolTable.h"*/
 #include "parser.tab.h"
 
@@ -19,6 +23,7 @@ DIGIT   [0-9]
 "false"     { yylval.boolean = false; return FALSE;}
 "var"       {return VARIABLE_DEF;}
 "const"     {return CONST; }
+"call"      {return CALL; }
 "object"    {return OBJECT_DEF;}
 "function"  {return FUNCTION_DEF;}
 "for"       {return FOR;}
