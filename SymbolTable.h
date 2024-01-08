@@ -44,7 +44,7 @@ class Function
 private:
     string name;
     string return_type;
-    list <Statement*>* stmts;
+    list<Statement*>* stmts;
     list<Parameter*>* params;
     int lineno;
 
@@ -62,6 +62,7 @@ private:
     map<string, Variable*> vars;
     map<string, Function*> funcs;
     static SymbolTable* instance;
+    Function* crtFunction = nullptr;
     SymbolTable();
 
 public:
@@ -72,6 +73,7 @@ public:
     Variable* addVariable(const char* type, const char* name, int lineno);
     Function* getFunction(string name);
     Function* addFunction(const char* type, const char* name, list<Parameter*>* param, list<Statement*>* stmts, int lineno);
+    
 
     void printVars();
     ~SymbolTable();

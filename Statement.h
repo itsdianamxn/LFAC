@@ -38,7 +38,8 @@ public:
     {
         if (cond->getType() != "bool")
         {
-            cout <<"line : " <<lineno << " ERR: Invalid condition in if statement." <<endl;
+            cout << "line : " <<lineno << " ERR: Invalid condition in if statement." <<endl;
+            cout << cond->asString() << " : " << cond->getType() << " = " << cond->getValue() << endl; 
             exit(-11);
         }
         if (cond->getValue()->boolValue())
@@ -52,4 +53,27 @@ public:
     }
 };
 
+class WhileStatement : public Statement
+{
+private:
+    AST* cond;
+    Statement* onTrue;
+public:
+    WhileStatement(int lineno, AST* cond, Statement* onTrue) : 
+        Statement(lineno), cond(cond), onTrue(onTrue) {}
+    ~WhileStatement() {}
+
+    void run()
+    {
+        if (cond->getType() != "bool")
+        {
+            cout <<"line : " <<lineno << " ERR: Invalid condition in while statement." <<endl;
+            exit(-11);
+        }
+        while (cond->getValue()->boolValue())
+        {
+            onTrue->run();
+        }
+    }
+};
 #endif

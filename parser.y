@@ -97,14 +97,17 @@ global_variable : VARIABLE_DEF ID COLON TYPE SEMICOLON
                               SymbolTable::getInstance()->addVariable($4, $2, yylineno);
                          }
                 | VARIABLE_DEF ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
-                         { Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
-                           v->setValue($6->getValue()); }
+                         { 
+                              Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
+                              v->setValue($6->getValue()); 
+                         }
                 | VARIABLE_DEF ID COLON TYPE OPENSQUARE INT_LITERAL CLOSESQUARE SEMICOLON
                          { cout << "Define array variable " << $2 << " of type " << $4 << endl;}
                 | CONST ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
                          { Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
                            v->setValue($6->getValue());
-                           v->setConstant(); }
+                           v->setConstant(); 
+                         }
                 ;
 
 global_variables : global_variables global_variable
@@ -171,11 +174,11 @@ if_statement : IF OPENPAREN extended_expr CLOSEPAREN THEN statement
              ;
 
 for_statement : FOR OPENPAREN global_variable SEMICOLON extended_expr SEMICOLON extended_expr CLOSEPAREN statement
-               { $$ = new EmptyStatement(yylineno); }
+                    { $$ = new EmptyStatement(yylineno); }
               ;
 
 while_statement : WHILE OPENPAREN extended_expr CLOSEPAREN statement
-               { $$ = new EmptyStatement(yylineno); }
+                    { $$ = new EmptyStatement(yylineno); }
                 ;
 
 argument_list : extended_expr                      { $$ = new list<AST*>; $$->push_front($1); }
@@ -256,7 +259,7 @@ int main(int argc, char** argv)
      Function* mainF = SymbolTable::getInstance()->getFunction("main");
      if (mainF == nullptr)
      {
-          cout << "main() function fot found!" << endl;
+          cout << "main() function not found!" << endl;
           return -1;
      }
      mainF->execute();  

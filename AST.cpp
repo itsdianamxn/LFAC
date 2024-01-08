@@ -94,6 +94,8 @@ string AST::getType()
                 cout <<"line : " <<lineno << " ERR: nodes' types not matching"<<endl;
                 return nullptr;
             }
+            if (op == AST_GEQ || op == AST_NOT_EQ || op ==AST_LEQ || op == '>' || op == '<' || op == '=')
+                return "bool";
             return leftType;
         }
     }
@@ -101,13 +103,13 @@ string AST::getType()
 
 Value* AST::getValue()
 {
-     switch (op)
+    switch (op)
     {
         case AST_LITERAL: return leaf;
         case AST_IDENTIFIER:
         {
             Variable* v = SymbolTable::getInstance()->getVariable(ident);
-            if(v==nullptr)
+            if (v==nullptr)
             {
                 cout <<"line : " <<lineno << " ERR: missing variable '" << ident << "'." <<endl;
                 exit(-7);
@@ -117,7 +119,7 @@ Value* AST::getValue()
         case AST_FUNCTION_CALL:
         {
             Function* f = SymbolTable::getInstance()->getFunction(ident);
-            if(f==nullptr)
+            if (f==nullptr)
             {
                 cout <<"line : " <<lineno << " ERR: missing function '" << ident << "'." <<endl;
                 exit(-7);
@@ -150,14 +152,37 @@ Value* AST::getValue()
 
             switch (op)
             {
-            case '+': return leftValue->sum(rightValue);
-            case '-': return leftValue->minus(rightValue);
-            case '*': return leftValue->mult(rightValue);
-            case '/': return leftValue->div(rightValue);
-            
-            default:
-                return nullptr;
+                case '+': return leftValue->sum(rightValue);
+                case '-': return leftValue->minus(rightValue);
+                case '*': return leftValue->mult(rightValue);
+                case '/': return leftValue->div(rightValue);
+                
+                case '<': return leftValue->isGreaterThan(rightValue);
+                case '=': return leftValue->isEqual(rightValue);
+                case '>': return leftValue->isLessThan(rightValue);
+                case AST_NOT_EQ: return new BoolValue(!(leftValue->isEqual(rightValue)));
+                case AST_GEQ: return new BoolValue(!(leftValue->isLessThan(rightValue)));
+                case AST_LEQ: return new BoolValue(!(leftValue->isGreaterThan(rightValue)));
+
+                default:
+                    return nullptr;
             }
         }
+    }
+}
+
+string AST::asString()
+{
+    switch (op)
+    {
+        case AST_IDENTIFIER: return ident;
+        case AST_LITERAL: return leaf->stringValue();
+        default: 
+            string ret = "(";
+            if (left != nullptr) ret += left->asString() + " ";
+            ret += op;
+            if (right != nullptr) ret += " " + right->asString();
+            ret += ")";
+        return ret;
     }
 }

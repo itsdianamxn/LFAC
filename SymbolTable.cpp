@@ -58,6 +58,7 @@ Variable* SymbolTable::addVariable(const char* type, const char* name, int linen
     else
     {
         cout <<"line : " <<lineno <<" ERR: Duplicate variable " << name << " already declared at line " << v->getLine() <<endl;
+        exit(-6);
     }
     return v;
 }
@@ -96,6 +97,7 @@ Function* SymbolTable::addFunction(const char* type, const char* name, list<Para
     {
         cout << "line : " << lineno << " ERR: Duplicate function " << name << 
                 " already declared at line " << f->getLine() <<endl;
+        exit(-5);
     }
     return f;
 }

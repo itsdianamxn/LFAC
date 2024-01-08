@@ -13,7 +13,7 @@ var b2: bool;
 const pi : float(-3.14);
 var c: char('&');
 var my_str : string ("aeiou");
-var a : bool(true);
+/*var a : bool(true);*/
 
 var ufo : Ozn("UFO", pi);
 var tablou : int[6];
@@ -29,31 +29,30 @@ function main() : void
 {
     var a2 : int(7);
     var i: int(0);
+    var b: bool(false); 
     
     a = -10;
-    a = ufo1.name2;
+    /*a = ufo1.name2;*/
     
     print(1, "true");
     print(a, a2);
-    a = ufo.name;
+    /*a = ufo.name;*/
     a = 1;
     call sum(2, 2);
     /* call ufo.fly(10000.6 + 7.6, pi);*/
-
-    if (a2 >= a)
+    Eval(1+1);
+    TypeOf(ufo);
+    if (a2 > a)
         then 
             print(a2, " minus ", a, " egal", sum(a2, 0 - a));
         else
             print(a2, " plus ", a, " egal ", sum(a2, a + 0));
-    b = start;
+    /* b = start(); */
     ;
-    b = ubuntu;
+    /* b = ubuntu; */
     {}
-    b = coca-cola;
     
-    print("Am vazut un ",
-            ufo.name, " de ", 
-            ufo.size, "metri"); 
+    /* print("Am vazut un ", ufo.name, " de ", ufo.size, "metri"); */ 
 
     b = true;
     while (b)

@@ -8,7 +8,7 @@
 #include "Value.h"
 
 #define AST_LITERAL         'L'
-#define AST_IDENTIFIER 'I'
+#define AST_IDENTIFIER      'I'
 #define AST_FUNCTION_CALL   'F'
 #define AST_ARRAY_IDENTIFIER 'A'
 #define AST_METHOD 'M'
@@ -44,6 +44,7 @@ public:
     ~AST();
     string getType(); 
     Value* getValue();
+    string asString();
 };
 
 #endif
