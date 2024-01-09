@@ -1,6 +1,9 @@
+
+#include <fstream>
 #include "SymbolTable.h"
 
-Variable::Variable(const char* type, const char* name, int lineno): type(type), name(name), lineno(lineno)
+
+Variable::Variable(string type, string name, int lineno): type(type), name(name), lineno(lineno)
 {
     if (this->type == "int") value = new IntValue(0);
     else if (this->type == "bool") value = new BoolValue(false);
@@ -62,16 +65,28 @@ Variable* SymbolTable::addVariable(const char* type, const char* name, int linen
     }
     return v;
 }
+
 Variable* SymbolTable::getVariable(string name)
 {
+    if (crtFunction != nullptr)
+    {
+        Variable* v = crtFunction->getLocals()[name];
+        if (v != nullptr)
+        {
+            return v;
+        }
+    }
     return vars[name];
 }
+
 // Iterate through the map and print the elements
 void SymbolTable::printVars()
 {
-    auto it = vars.begin();
+    ofstream fout("Variables.txt");
 
-    cout << "LineNo\tType\tVarName\tValue"<< endl;
+    fout << "Variables:"<< endl;
+    fout << "LineNo\tType\tVarName\tValue"<< endl;
+    auto it = vars.begin();
     while (it != vars.end())
     {
         Variable* var = it->second;
@@ -81,9 +96,36 @@ void SymbolTable::printVars()
             stringValue = var->getValue()->stringValue();
         }
         char is_const = var->isConstant()?'*':' ' ;
-        cout<< var->getLine() <<"\t" << var->getType() <<is_const << "\t" << var->getName() << "\t" << stringValue << endl;
+        fout<< var->getLine() <<"\t" << var->getType() <<is_const << "\t" << var->getName() << "\t" << stringValue << endl;
         ++it;
     }
+
+    fout << endl;
+    fout << "Functions:" << endl;
+    fout << "LineNo\tType\tFnName\tParameterTypes"<< endl;
+
+    auto it3 = funcs.begin();
+    while (it3 != funcs.end())
+    {
+        Function* var = it3->second;
+        fout << var->getLine() <<"\t" << var->getType() << "\t" << var->getName() << "\t(";
+        list<Parameter*>* params = var->getParameters();
+        
+        auto it2 = params->begin();
+        while (it2 != params->end())
+        {
+            Parameter* p = *it2;
+            fout << p->getType();
+            ++it2;
+            if (it2 != params->end())
+                fout << ", ";
+        }
+        fout << ")" << endl;
+
+        ++it3;
+    }
+
+    fout.close();
 }
 
 Function* SymbolTable::addFunction(const char* type, const char* name, list<Parameter*>* params, list<Statement*>* stmts, int lineno)
@@ -107,11 +149,55 @@ Function* SymbolTable::getFunction(string name)
     return funcs[name];
 } 
 
-Value* Function::execute()
+Function* SymbolTable::setCurrentFunction(Function* f)
+{
+    Function* saveFn = crtFunction;
+    crtFunction = f;
+    return saveFn;
+}
+
+void SymbolTable::setReturnValue(Value* v)
+{
+    if (crtFunction == nullptr)
+    {
+        cout << "ERR: invalid return statement." <<endl;
+        exit(-18);
+    }
+    crtFunction->setReturnValue(v);
+}
+
+Value* Function::execute(list<AST*>* args)
 {
     // match arguments with parameters
-    // evaluate arguments
-    // add arguments as variables
+    if (args->size() != params->size())
+    {
+        cout <<"line : " << lineno << " ERR: incorrect number of arguments in '" << name << "' function call." <<endl;
+        exit(-17);
+    }
+    auto itArg = args->begin();
+    auto itParam = params->begin();
+    while (itArg != args->end())
+    {
+        Parameter* p = *itParam;
+        AST* arg = *itArg;
+        string arg_type = arg->getType();
+        if (arg_type != p->getType())
+        {
+            cout << "line : " << p->getLine() << " ERR: incorrect type of argument " << p->getName()
+                    << " in '" << name << "' function call." <<endl << "Parameter type is : " 
+                    << p->getType() << " Argument type is : " << arg_type << endl;
+            exit(-17);
+        }
+        // evaluate arguments and add arguments as variables
+        Variable* v = new Variable(arg_type, p->getName(), p->getLine());
+        local_vars[p->getName()] = v;
+        v->setValue(arg->getValue());
+
+        ++itArg;
+        ++itParam;
+    }
+
+    Function* prevFunction = SymbolTable::getInstance()->setCurrentFunction(this);
     
     // execute statements
     auto it = stmts->begin();
@@ -119,7 +205,17 @@ Value* Function::execute()
     {
         Statement* stmt = *it;
         stmt->run();
+        if (retVal != nullptr)
+            break;
         ++it;
     }
-    return nullptr;
+
+    SymbolTable::getInstance()->setCurrentFunction(prevFunction);
+
+    return retVal;
+}
+
+void Function::setReturnValue(Value* v)
+{
+    retVal = v;
 }

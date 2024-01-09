@@ -6,6 +6,7 @@
 #include "Statement.h"
 #include "Assignment.h"
 #include "PrintStatement.h"
+#include "ReturnStatement.h"
 #include "SymbolTable.h"
 #include "Value.h"
 #include "AST.h"
@@ -90,7 +91,10 @@ literal   : FLOAT_LITERAL  { $$ = new AST(yylineno, new FloatValue($1)); }
           ;
 
 global_variable : VARIABLE_DEF ID COLON TYPE SEMICOLON
-                         { SymbolTable::getInstance()->addVariable($4, $2, yylineno);  }
+                         { 
+                              // cout << "Defining variable " << $2 << endl;
+                              SymbolTable::getInstance()->addVariable($4, $2, yylineno);
+                         }
                 | VARIABLE_DEF ID COLON ID OPENPAREN argument_list CLOSEPAREN SEMICOLON
                          {
                               cout << "Define userdef variable " << $2 << " of type " << $4 << endl; 
@@ -104,9 +108,10 @@ global_variable : VARIABLE_DEF ID COLON TYPE SEMICOLON
                 | VARIABLE_DEF ID COLON TYPE OPENSQUARE INT_LITERAL CLOSESQUARE SEMICOLON
                          { cout << "Define array variable " << $2 << " of type " << $4 << endl;}
                 | CONST ID COLON TYPE OPENPAREN literal CLOSEPAREN SEMICOLON
-                         { Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
-                           v->setValue($6->getValue());
-                           v->setConstant(); 
+                         {
+                              Variable* v = SymbolTable::getInstance()->addVariable($4, $2, yylineno);
+                              v->setValue($6->getValue());
+                              v->setConstant(); 
                          }
                 ;
 
@@ -178,7 +183,7 @@ for_statement : FOR OPENPAREN global_variable SEMICOLON extended_expr SEMICOLON 
               ;
 
 while_statement : WHILE OPENPAREN extended_expr CLOSEPAREN statement
-                    { $$ = new EmptyStatement(yylineno); }
+                    { $$ = new WhileStatement(yylineno, $3, $5); }
                 ;
 
 argument_list : extended_expr                      { $$ = new list<AST*>; $$->push_front($1); }
@@ -210,8 +215,8 @@ type_of : TYPE_OF OPENPAREN extended_expr CLOSEPAREN
      { $$ = new TypeOf(yylineno, $3); }
 
 
-return_statement: RETURN expr { $$ = new EmptyStatement(yylineno); }
-                | RETURN      { $$ = new EmptyStatement(yylineno); }
+return_statement: RETURN extended_expr { $$ = new ReturnStatement(yylineno, $2); }
+                | RETURN               { $$ = new ReturnStatement(yylineno, nullptr); }
                 ;
 
 statement : assignment SEMICOLON
@@ -223,7 +228,7 @@ statement : assignment SEMICOLON
           | function_stmt SEMICOLON
           | eval SEMICOLON
           | type_of SEMICOLON
-          | OPENBRACKET statements CLOSEBRACKET { $$ = new EmptyStatement(yylineno); }
+          | OPENBRACKET statements CLOSEBRACKET { $$ = new ComposedStatement(yylineno, $2); }
           | SEMICOLON                           { $$ = new EmptyStatement(yylineno); }
           ;
 
@@ -235,7 +240,10 @@ code_block : OPENBRACKET global_variables statements CLOSEBRACKET { $$ = $3; }
            ;
 
 function_definition : FUNCTION_DEF ID OPENPAREN parameters CLOSEPAREN COLON TYPE code_block
-     { SymbolTable::getInstance()->addFunction($7, $2, $4, $8, yylineno); }
+     {
+          // cout << "Added function " << $2 << endl; 
+          SymbolTable::getInstance()->addFunction($7, $2, $4, $8, yylineno); 
+     }
                     ; 
 
 function_definitions : function_definitions function_definition
@@ -252,8 +260,6 @@ int main(int argc, char** argv)
 {
      yyin=fopen(argv[1],"r");
      yyparse();
-
-     cout << "Variables:" << endl;
      SymbolTable::getInstance()->printVars();  
 
      Function* mainF = SymbolTable::getInstance()->getFunction("main");
@@ -262,5 +268,5 @@ int main(int argc, char** argv)
           cout << "main() function not found!" << endl;
           return -1;
      }
-     mainF->execute();  
+     mainF->execute(new list<AST*>());  
 } 

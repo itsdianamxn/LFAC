@@ -36,7 +36,11 @@ public:
                 " rvalue: "<<  rightType << "." <<endl;
             exit(-8);
         }
-        v->setValue(ast->getValue());
+        Value* val = ast->getValue();
+        // cout << "\tAssinging " << val->stringValue() << " to " << v->getName() << endl;
+        v->setValue(val);
+        // cout << "\tValue of " << v->getName() << " is now " << v->getValue()->stringValue() << endl;
+        
     }
 };
 

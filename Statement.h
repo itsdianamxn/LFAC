@@ -53,6 +53,26 @@ public:
     }
 };
 
+class ComposedStatement : public Statement
+{
+private:
+    list <Statement*>* stmts;
+public:
+    ComposedStatement(int lineno, list <Statement*>* stmts) : Statement(lineno), stmts(stmts){}
+    ~ComposedStatement() {}
+
+    void run()
+    {
+        auto it = stmts->begin();
+        while (it != stmts->end())
+        {
+            Statement* stmt = *it;
+            stmt->run();
+            ++it;
+        }
+    }
+};
+
 class WhileStatement : public Statement
 {
 private:
@@ -70,10 +90,12 @@ public:
             cout <<"line : " <<lineno << " ERR: Invalid condition in while statement." <<endl;
             exit(-11);
         }
+        // cout << "WHILE cond = "<< cond->asString() << endl;
         while (cond->getValue()->boolValue())
         {
             onTrue->run();
         }
     }
 };
+
 #endif

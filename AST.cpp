@@ -68,12 +68,17 @@ string AST::getType()
             Function* f = SymbolTable::getInstance()->getFunction(ident);
             if(f==nullptr)
             {
-                cout <<"line : " <<lineno << " ERR: missing function '" << ident << "'." <<endl;
+                cout <<"line : " <<lineno << " ERR: undeclared function '" << ident << "'." <<endl;
                 exit(-7);
             }
             return f->getType();
         }
-        // to add other AST_TYPES leaves
+        case AST_ARRAY_IDENTIFIER:
+            return "void"; // TODO implement me
+        case AST_METHOD:
+            return "void"; // TODO implement me
+        case AST_FIELD:
+            return "void"; // TODO implement me
         default:
         {
             if (left == nullptr)
@@ -121,12 +126,17 @@ Value* AST::getValue()
             Function* f = SymbolTable::getInstance()->getFunction(ident);
             if (f==nullptr)
             {
-                cout <<"line : " <<lineno << " ERR: missing function '" << ident << "'." <<endl;
+                cout <<"line : " <<lineno << " ERR: undeclared function '" << ident << "'." <<endl;
                 exit(-7);
             }
-            return f->execute();
+            return f->execute(params);
         }
-        // to add other AST_TYPES leaves
+        case AST_ARRAY_IDENTIFIER:
+            return 0; // TODO implement me
+        case AST_METHOD:
+            return 0; // TODO implement me
+        case AST_FIELD:
+            return 0; // TODO implement me
         default:
         {
             if (left == nullptr)
@@ -160,9 +170,13 @@ Value* AST::getValue()
                 case '<': return leftValue->isGreaterThan(rightValue);
                 case '=': return leftValue->isEqual(rightValue);
                 case '>': return leftValue->isLessThan(rightValue);
-                case AST_NOT_EQ: return new BoolValue(!(leftValue->isEqual(rightValue)));
-                case AST_GEQ: return new BoolValue(!(leftValue->isLessThan(rightValue)));
-                case AST_LEQ: return new BoolValue(!(leftValue->isGreaterThan(rightValue)));
+                case AST_NOT_EQ: 
+                {
+                    Value* eq = leftValue->isEqual(rightValue);
+                    return new BoolValue(!eq->boolValue());
+                }
+                case AST_GEQ: return new BoolValue(!(leftValue->isLessThan(rightValue))->boolValue());
+                case AST_LEQ: return new BoolValue(!(leftValue->isGreaterThan(rightValue))->boolValue());
 
                 default:
                     return nullptr;
